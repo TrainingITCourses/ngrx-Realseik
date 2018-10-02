@@ -1,0 +1,10 @@
+<app-buscador 
+    [criterios]="criterios"
+    [valoresCriterio]="valores$ | async" 
+    (criterioSeleccionado)="onCriterioSeleccionado($event)"
+    (valorSeleccionado)="onValorSeleccionado($event)">
+</app-buscador>
+
+<app-lanzamientos
+    [lanzamientos]="lanzamientos$ | async">
+</app-lanzamientos>
