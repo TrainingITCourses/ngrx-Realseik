@@ -1,52 +1,73 @@
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { map } from 'rxjs/operators';
-import { StoreService, GlobalSlideTypes } from '../serviceStore/global-store.service';
-import { URL } from '../shared/config';
-import { LoadStatuses, LoadLaunches, LoadAgencies, LoadTypes } from '../serviceStore/global-store.actions';
-import { Store } from '@ngrx/store';
-import { State } from '../reducers';
-import { ValorActionTypes, LoadValors } from '../reducers/valor.actions';
+import { Injectable } from "@angular/core";
+import { HttpClient } from "@angular/common/http";
+import { map } from "rxjs/operators";
+import {
+  StoreService,
+  GlobalSlideTypes
+} from "../serviceStore/global-store.service";
+import { URL } from "../shared/config";
+import {
+  LoadStatuses,
+  LoadLaunches,
+  LoadAgencies,
+  LoadTypes
+} from "../serviceStore/global-store.actions";
+import { Store } from "@ngrx/store";
+import { GlobalState } from "../reducers";
+import { ValorActionTypes, LoadValors } from "../reducers/valor.actions";
+import { of } from "../../../node_modules/rxjs";
 
 @Injectable()
 export class DataService {
-  constructor(private http: HttpClient,
-    private store: Store<State>,
-    private global: StoreService) { }
+  constructor(
+    private http: HttpClient,
+    private store: Store<GlobalState>,
+    private global: StoreService
+  ) {}
 
   // ---------    Funciones generales
+  
+  public leerCriterios() {
+    // Como tenemos unos valores fijos pero podrian cambiar,
+    // prefiero probar a mandarlos forzando un observable en vez de estar en el InitialState
+    // de criterio.reducer.ts
+    return of(["Estado", "Agencia", "Tipo"]);
+  }
 
   public leerValoresCriterio(name) {
     switch (name) {
-      case 'Estado':
+      case "Estado":
         this.getEstados();
         break;
-      case 'Agencia':
+      case "Agencia":
         this.getAgencias();
         break;
-      case 'Tipo':
+      case "Tipo":
         this.getTipos();
         break;
     }
   }
 
   public leerLanzamientos(criterio, valor) {
-    this.http.get(URL + '/assets/launchlibrary.json').pipe(
-      map((res: any) =>
-        res.launches.filter(launch => {
-          switch (criterio) {
-            case 'Agencia':
-              return this.filtrarAgencia(launch, Number(valor));
-            case 'Estado':
-              return this.filtrarEstado(launch, Number(valor));
-            case 'Tipo':
-              return this.filtrarTipoMision(launch, Number(valor));
-          }
-        })
+    this.http
+      .get(URL + "/assets/launchlibrary.json")
+      .pipe(
+        map((res: any) =>
+          res.launches.filter(launch => {
+            switch (criterio) {
+              case "Agencia":
+                return this.filtrarAgencia(launch, Number(valor));
+              case "Estado":
+                return this.filtrarEstado(launch, Number(valor));
+              case "Tipo":
+                return this.filtrarTipoMision(launch, Number(valor));
+            }
+          })
+        )
       )
-    ).subscribe((lanzamientos: any) => {
-      this.global.dispatch(new LoadLaunches(lanzamientos));
-    });
+      .subscribe((lanzamientos: any) => {
+        this.global.dispatch(new LoadLaunches(lanzamientos));
+      });
   }
 
   // ---------   Filtros a aplicar en la lista de lanzamientos
@@ -78,13 +99,16 @@ export class DataService {
     if (Agencies.length > 0) {
       return [...Agencies];
     } else {
-      this.http.get(URL + '/assets/launchagencies.json').pipe(
-        map((res: any) => {
-          return res.agencies;
-        })
-      ).subscribe((agencies: any) => {
-        this.global.dispatch(new LoadAgencies(agencies));
-      });
+      this.http
+        .get(URL + "/assets/launchagencies.json")
+        .pipe(
+          map((res: any) => {
+            return res.agencies;
+          })
+        )
+        .subscribe((agencies: any) => {
+          this.global.dispatch(new LoadAgencies(agencies));
+        });
     }
   }
 
@@ -93,13 +117,16 @@ export class DataService {
     if (Types.length > 0) {
       return [...Types];
     } else {
-      this.http.get(URL + '/assets/launchmissions.json').pipe(
-        map((res: any) => {
-          this.global.dispatch(new LoadTypes(res.types));
-        })
-      ).subscribe((types: any) => {
-        this.global.dispatch(new LoadTypes(types));
-      });
+      this.http
+        .get(URL + "/assets/launchmissions.json")
+        .pipe(
+          map((res: any) => {
+            this.global.dispatch(new LoadTypes(res.types));
+          })
+        )
+        .subscribe((types: any) => {
+          this.global.dispatch(new LoadTypes(types));
+        });
     }
   }
 
