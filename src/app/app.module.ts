@@ -19,6 +19,7 @@ import { EstadosEffects } from './reducers/estados.effects';
 import { LanzamientosEffects } from './reducers/lanzamientos.effects';
 import { CriterioEffects } from './reducers/criterio.effects';
 import { StoreRouterConnectingModule } from '@ngrx/router-store';
+import { RouterModule } from '../../node_modules/@angular/router';
 
 @NgModule({
   declarations: [
@@ -32,18 +33,20 @@ import { StoreRouterConnectingModule } from '@ngrx/router-store';
   imports: [
     BrowserModule,
     HttpClientModule,
+    RouterModule.forRoot([]),
     StoreModule.forRoot(reducers, { metaReducers }),
     !environment.production ? StoreDevtoolsModule.instrument() : [],
     EffectsModule.forRoot([
       EstadosEffects,
       LanzamientosEffects,
       AgencyEffects,
-      ValorEffects
+      ValorEffects,
+      CriterioEffects
     ]),
-    EffectsModule.forFeature([CriterioEffects]),
-    StoreRouterConnectingModule.forRoot({ stateKey: 'router' }),
+    StoreRouterConnectingModule.forRoot({ stateKey: 'router' })
   ],
+  exports: [RouterModule],
   providers: [DataService],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {}

@@ -1,11 +1,18 @@
-import { Action } from '@ngrx/store';
+import { Action } from "@ngrx/store";
 
 export enum LanzamientosActionTypes {
-  LoadLanzamientoss = '[Lanzamientos] Load Lanzamientoss'
+  LoadLanzamientos = "[Lanzamientos] Load Lanzamientos",
+  LanzamientosSaved = "[Lanzamientos] Lanzamientos Saved"
 }
 
-export class LoadLanzamientoss implements Action {
-  readonly type = LanzamientosActionTypes.LoadLanzamientoss;
+export class LoadLanzamientos implements Action {
+  readonly type = LanzamientosActionTypes.LoadLanzamientos;
+  constructor(readonly payload: any[]) {}
 }
 
-export type LanzamientosActions = LoadLanzamientoss;
+export class LanzamientosSaved implements Action {
+  readonly type = LanzamientosActionTypes.LanzamientosSaved;
+  constructor(readonly payload: any[]) {}
+}
+
+export type LanzamientosActions = LoadLanzamientos | LanzamientosSaved;

@@ -1,5 +1,4 @@
-import { ValorActions, ValorActionTypes } from './valor.actions';
-
+import { ValorActions, ValorActionTypes } from "./valor.actions";
 
 export interface State {
   valores: any[];
@@ -8,7 +7,7 @@ export interface State {
 
 export const initialState: State = {
   valores: [],
-  message: ''
+  message: ""
 };
 
 export function reducer(state = initialState, action: ValorActions): State {
@@ -18,7 +17,8 @@ export function reducer(state = initialState, action: ValorActions): State {
     case ValorActionTypes.SaveValors:
       return state;
     case ValorActionTypes.Saved:
-      return { ...state, valores: action.payload };
+      state.valores = action.payload;
+      return { ...state };
     case ValorActionTypes.NotSaved:
       this.message = action.payload;
       break;
