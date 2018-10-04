@@ -9,6 +9,7 @@ export enum ValorActionTypes {
 
 export class LoadValors implements Action {
   readonly type = ValorActionTypes.LoadValors;
+  constructor(public readonly payload: any[]) { }
 }
 
 export class SaveValors implements Action {
@@ -18,7 +19,7 @@ export class SaveValors implements Action {
 
 export class Saved implements Action {
   readonly type = ValorActionTypes.Saved;
-  constructor(public readonly payload?: any[]) { }
+  constructor(public readonly payload: any[]) { }
 }
 
 export class NotSaved implements Action {

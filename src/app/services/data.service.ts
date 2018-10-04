@@ -1,73 +1,59 @@
-import { Injectable } from "@angular/core";
-import { HttpClient } from "@angular/common/http";
-import { map } from "rxjs/operators";
-import {
-  StoreService,
-  GlobalSlideTypes
-} from "../serviceStore/global-store.service";
-import { URL } from "../shared/config";
-import {
-  LoadStatuses,
-  LoadLaunches,
-  LoadAgencies,
-  LoadTypes
-} from "../serviceStore/global-store.actions";
-import { Store } from "@ngrx/store";
-import { GlobalState } from "../reducers";
-import { ValorActionTypes, LoadValors } from "../reducers/valor.actions";
-import { of } from "../../../node_modules/rxjs";
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { map } from 'rxjs/operators';
+import { URL } from '../shared/config';
+import { Store } from '@ngrx/store';
+import { GlobalState } from '../reducers';
+import { ValorActionTypes, LoadValors } from '../reducers/valor.actions';
+import { of, Observable } from '../../../node_modules/rxjs';
 
 @Injectable()
 export class DataService {
   constructor(
     private http: HttpClient,
-    private store: Store<GlobalState>,
-    private global: StoreService
-  ) {}
+    private store: Store<GlobalState>
+  ) { }
 
   // ---------    Funciones generales
-  
+
   public leerCriterios() {
     // Como tenemos unos valores fijos pero podrian cambiar,
     // prefiero probar a mandarlos forzando un observable en vez de estar en el InitialState
     // de criterio.reducer.ts
-    return of(["Estado", "Agencia", "Tipo"]);
+    return of(['Estado', 'Agencia', 'Tipo']);
   }
 
-  public leerValoresCriterio(name) {
+  public leerValoresCriterio(name): Observable<any> {
     switch (name) {
-      case "Estado":
-        this.getEstados();
-        break;
-      case "Agencia":
-        this.getAgencias();
-        break;
-      case "Tipo":
-        this.getTipos();
-        break;
+      case 'Estado':
+        return this.getEstados();
+      case 'Agencia':
+        return this.getAgencias();
+      case 'Tipo':
+        return this.getTipos();
     }
   }
 
   public leerLanzamientos(criterio, valor) {
-    this.http
-      .get(URL + "/assets/launchlibrary.json")
-      .pipe(
-        map((res: any) =>
-          res.launches.filter(launch => {
-            switch (criterio) {
-              case "Agencia":
-                return this.filtrarAgencia(launch, Number(valor));
-              case "Estado":
-                return this.filtrarEstado(launch, Number(valor));
-              case "Tipo":
-                return this.filtrarTipoMision(launch, Number(valor));
-            }
-          })
-        )
-      )
-      .subscribe((lanzamientos: any) => {
-        this.global.dispatch(new LoadLaunches(lanzamientos));
-      });
+    // this.http
+    //   .get(URL + '/assets/launchlibrary.json')
+    //   .pipe(
+    //     map((res: any) =>
+    //       res.launches.filter(launch => {
+    //         switch (criterio) {
+    //           case 'Agencia':
+    //             return this.filtrarAgencia(launch, Number(valor));
+    //           case 'Estado':
+    //             return this.filtrarEstado(launch, Number(valor));
+    //           case 'Tipo':
+    //             return this.filtrarTipoMision(launch, Number(valor));
+    //         }
+    //       })
+    //     )
+    //   )
+    //   .subscribe((lanzamientos: any) => {
+    //     this.global.dispatch(new LoadLaunches(lanzamientos));
+    //   });
   }
 
   // ---------   Filtros a aplicar en la lista de lanzamientos
@@ -91,58 +77,34 @@ export class DataService {
 
   public getCriterios() {
     // Para hacerlo diferente voy a tratarlo como algo 'fijo', asique tan solo necesitariamos una snapshot.
-    return this.global.selectSnapShot(GlobalSlideTypes.criterios);
+    // return this.global.selectSnapShot(GlobalSlideTypes.criterios);
   }
 
   private getAgencias() {
-    const Agencies = this.global.selectSnapShot(GlobalSlideTypes.agencies);
-    if (Agencies.length > 0) {
-      return [...Agencies];
-    } else {
-      this.http
-        .get(URL + "/assets/launchagencies.json")
-        .pipe(
-          map((res: any) => {
-            return res.agencies;
-          })
-        )
-        .subscribe((agencies: any) => {
-          this.global.dispatch(new LoadAgencies(agencies));
-        });
-    }
+    return this.http
+      .get(URL + '/assets/launchagencies.json')
+      .pipe(
+        map((res: any) => {
+          return res.agencies;
+        })
+      );
   }
 
   private getTipos() {
-    const Types = this.global.selectSnapShot(GlobalSlideTypes.types);
-    if (Types.length > 0) {
-      return [...Types];
-    } else {
-      this.http
-        .get(URL + "/assets/launchmissions.json")
-        .pipe(
-          map((res: any) => {
-            this.global.dispatch(new LoadTypes(res.types));
-          })
-        )
-        .subscribe((types: any) => {
-          this.global.dispatch(new LoadTypes(types));
-        });
-    }
+    return this.http
+      .get(URL + '/assets/launchmissions.json')
+      .pipe(
+        map((res: any) => {
+          return res.types;
+        })
+      );
   }
 
   private getEstados() {
-    this.store.dispatch(new LoadValors());
-    // const States = this.global.selectSnapShot(GlobalSlideTypes.statuses);
-    // if (States.length > 0) {
-    //   return [...States];
-    // } else {
-    //   this.http.get(URL + '/assets/launchstatus.json').pipe(
-    //     map((res: any) => {
-    //       return res.types;
-    //     })
-    //   ).subscribe((states: any) => {
-    //     this.global.dispatch(new LoadStatuses(states));
-    //   });
-    // }
+    return this.http.get(URL + '/assets/launchstatus.json').pipe(
+      map((res: any) => {
+        return res.types;
+      })
+    );
   }
 }

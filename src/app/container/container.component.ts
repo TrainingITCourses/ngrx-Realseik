@@ -1,19 +1,19 @@
 import { CriteriosState } from './../reducers/criterio.reducer';
-import { DataService } from "./../services/data.service";
-import { ChangeDetectionStrategy, Component, OnInit } from "@angular/core";
-import {
-  StoreService,
-  GlobalSlideTypes
-} from "../serviceStore/global-store.service";
-import { Observable } from "rxjs";
-import { Store } from "@ngrx/store";
-import { GlobalState } from "../reducers";
-import { map } from "../../../node_modules/rxjs/operators";
+import { DataService } from './../services/data.service';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+
+import { Observable } from 'rxjs';
+import { Store } from '@ngrx/store';
+import { GlobalState } from '../reducers';
+import { map } from '../../../node_modules/rxjs/operators';
+import { LoadCriterios } from '../reducers/criterio.actions';
+import { LoadValors } from '../reducers/valor.actions';
+
 
 @Component({
-  selector: "app-container",
-  templateUrl: "./container.component.html",
-  styleUrls: ["./container.component.css"],
+  selector: 'app-container',
+  templateUrl: './container.component.html',
+  styleUrls: ['./container.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ContainerComponent implements OnInit {
@@ -23,41 +23,45 @@ export class ContainerComponent implements OnInit {
   public lanzamientos = [];
   private criterio: string;
 
-  constructor(private data: DataService, private store: Store<GlobalState>) {}
+  constructor(private data: DataService, private store: Store<GlobalState>) { }
 
   ngOnInit() {
-    this.iniciar();
-    this.store.select("valor");
+    this.loadData();
+    this.observeLaunches();
   }
 
-  iniciar() {
-    // this.criterios = this.data.getCriterios();
-    this.criterios$ = this.store.select("criterios").pipe(
-      map((stateCriterios : CriteriosState) => {
-        stateCriterios.criterios;
+  loadData = () => {
+    this.store.dispatch(new LoadCriterios());
+  }
+
+  observeLaunches = () => {
+
+    this.criterios$ = this.store.select('criterios').pipe(
+      map((stateCriterios: CriteriosState) => {
+        return stateCriterios.criterios;
       })
     );
 
-    this.valores$ = this.store.select("valores").pipe(
+    this.valores$ = this.store.select('valores').pipe(
       map(stateValores => {
-        stateValores.valores;
+        return stateValores.valores;
       })
     );
 
-    this.lanzamientos$ = this.store.select("lanzamientos").pipe(
-      map(stateLanzamientos => {
-        stateLanzamientos.lanzamientos;
-      })
-    );
-
+    // this.lanzamientos$ = this.store.select("lanzamientos").pipe(
+    //   map(stateLanzamientos => {
+    //     stateLanzamientos.lanzamientos;
+    //   })
+    // );
   }
 
   onCriterioSeleccionado(criterio) {
     this.criterio = criterio;
-    this.data.leerValoresCriterio(criterio);
+    this.store.dispatch(new LoadValors(criterio));
   }
 
   onValorSeleccionado(valorCriterio) {
+    
     this.data.leerLanzamientos(this.criterio, valorCriterio);
   }
 }

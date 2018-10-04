@@ -14,12 +14,11 @@ export const initialState: State = {
 export function reducer(state = initialState, action: ValorActions): State {
   switch (action.type) {
     case ValorActionTypes.LoadValors:
-      break;
+      return { ...state };
     case ValorActionTypes.SaveValors:
       return state;
     case ValorActionTypes.Saved:
-      this.valor = action.payload;
-      break;
+      return { ...state, valores: action.payload };
     case ValorActionTypes.NotSaved:
       this.message = action.payload;
       break;

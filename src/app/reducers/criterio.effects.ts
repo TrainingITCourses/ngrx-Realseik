@@ -8,7 +8,7 @@ import { mergeMap, map } from "../../../node_modules/rxjs/operators";
 export class CriterioEffects {
   @Effect()
   public load$ = this.actions$
-    .ofType(CriterioActionTypes.CriteriosLoaded)
+    .ofType(CriterioActionTypes.LoadCriterios)
     .pipe(
       mergeMap(() =>
         this.data

@@ -1,22 +1,25 @@
 import { Injectable } from '@angular/core';
 import { Actions, Effect } from '@ngrx/effects';
-import { ValorActionTypes, SaveValors } from './valor.actions';
-import { ApiService } from '../services/api.service';
-import { mergeMap } from 'rxjs/operators';
+import { ValorActionTypes, LoadValors, Saved } from './valor.actions';
+import { mergeMap, map } from 'rxjs/operators';
+import { DataService } from '../services/data.service';
 
 
 @Injectable()
 export class ValorEffects {
 
   @Effect()
-  public save$ = this.actions$.ofType(ValorActionTypes.SaveValors)
+  public save$ = this.actions$
+    .ofType(ValorActionTypes.LoadValors)
     .pipe(
-      mergeMap((action: SaveValors) =>
-        this.api.post$(action.payload)
+      mergeMap((action: LoadValors) =>
+        this.data
+          .leerValoresCriterio(action.payload)
+          .pipe(map(valores => new Saved(valores)))
+
       )
     );
 
-  constructor(
-    private api: ApiService,
-    private actions$: Actions) { }
+  constructor(private actions$: Actions, private data: DataService) { }
+
 }
